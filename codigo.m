@@ -1,4 +1,5 @@
-% Carregar os dados dos arquivos (assumindo que estão no formato correto)
+% Carregar o pacote de processamento de sinais
+pkg load signal;
 
 saveVarsMat = load('sinais.mat');
 
