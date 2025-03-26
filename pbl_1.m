@@ -10,8 +10,11 @@
 % - X1, X2: TRANSFORMADAS DE FOURIER DOS SINAIS x1 E x2
 % - X1_magnitude, X2_magnitude: MAGNITUDE DOS ESPECTROS DE FREQUÊNCIA DOS SINAIS
 % - f_x1, f_x2: VETORES DE FREQUÊNCIA ASSOCIADOS AOS ESPECTROS DE x1 E x2
-% - X1_normalized, X2_normalized: VERSÕES NORMALIZADAS DAS TRANSFORMADAS DE FOURIER
-% - f_x1_norm, f_x2_norm: VETORES DE FREQUÊNCIA NORMALIZADOS
+% - X1_up, X2_down: TRANSFORMADAS DE FOURIER DOS SINAIS REAMOSTRADOS
+% - X1_up_length, X2_down_length: NÚMERO DE AMOSTRAS NOS SINAIS REAMOSTRADOS
+% - X1_up_magnitude, X2_down_magnitude: MAGNITUDE DOS ESPECTROS DE FREQUÊNCIA DOS SINAIS REAMOSTRADOS
+% - f_X1_up, f_X2_down: VETORES DE FREQUÊNCIA ASSOCIADOS AOS ESPECTROS REAMOSTRADOS
+
 
 % Carregar o pacote de processamento de sinais
 pkg load signal;
@@ -84,26 +87,54 @@ xlabel('Frequência (Hz)');
 ylabel('Magnitude');
 grid on;
 
-% Normalização de X1 e X2
-% Removendo repetição do sinal transformado
-X1_normalized = abs(X1) / x1_length;
-X2_normalized = abs(X2) / x2_length;
+% Reamostragem do espectro dos sinais X1 e X2
+% X1: de 8khz para 16khz (upsample)
+% X2: de 96khz para 16khz (downsample)
+X1_up = upsample(X1, 2);
+X1_up_length = length(X1_up);
+X1_up_magnitude = abs(X1_up);
+f_X1_up = (0: X1_up_length - 1) * ( (fs_1*6) /X1_up_length); % Vetor de frequências para X1_up
 
-f_x1_norm = (0:x1_length - 1) * (fs_1/x1_length);
-f_x2_norm = (0:x2_length - 1) * (fs_2/x2_length);
+X2_down = decimate(X2, 6);
+X2_down_length = length(X2_down);
+X2_down_magnitude = abs(X2_down);
+f_X2_down = (0: X2_down_length - 1) * ( (fs_2/2) /X2_down_length); % Vetor de frequências para X2_down
 
 figure;
 subplot(3,2,1);
-plot(f_x1_norm(1:x1_length/2), X1_normalized(1:x1_length/2));
-title('Espectro Normalizado de Frequências do Sinal X1');
-xlabel('Frequencia (hz)');
+plot(f_X1_up, X1_up_magnitude);
+title('Espectro de Frequências do Sinal x1 Reamostrado');
+xlabel('Frequência (Hz)');
 ylabel('Magnitude');
 grid on;
 
 subplot(3,2,2);
-plot(f_x2_norm(1:x2_length/2), X2_normalized(1:x2_length/2));
-title('Espectro Normalizado de Frequências do Sinal X2');
-xlabel('Frequencia (hz)');
+plot(f_X2_down, X2_down_magnitude);
+title('Espectro de Frequências do Sinal x2 Reamostrado');
+xlabel('Frequência (Hz)');
 ylabel('Magnitude');
 grid on;
+
+% Normalização de X1 e X2
+% Removendo repetição do sinal transformado
+%X1_normalized = abs(X1) / x1_length;
+%X2_normalized = abs(X2) / x2_length;
+
+%f_x1_norm = (0:x1_length - 1) * (fs_1/x1_length);
+%f_x2_norm = (0:x2_length - 1) * (fs_2/x2_length);
+
+%figure;
+%subplot(4,2,1);
+%plot(f_x1_norm(1:x1_length/2), X1_normalized(1:x1_length/2));
+%title('Espectro Normalizado de Frequências do Sinal X1');
+%xlabel('Frequencia (hz)');
+%ylabel('Magnitude');
+%grid on;
+
+%subplot(4,2,2);
+%plot(f_x2_norm(1:x2_length/2), X2_normalized(1:x2_length/2));
+%title('Espectro Normalizado de Frequências do Sinal X2');
+%xlabel('Frequencia (hz)');
+%ylabel('Magnitude');
+%grid on;
 
