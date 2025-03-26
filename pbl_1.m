@@ -88,17 +88,26 @@ ylabel('Magnitude');
 grid on;
 
 % Reamostragem do espectro dos sinais X1 e X2
-% X1: de 8khz para 16khz (upsample)
-% X2: de 96khz para 16khz (downsample)
+% X1: de 8khz para 16khz (upsample)    | Interpolar em 2
+% X2: de 96khz para 16khz (downsample) | Decimar em 6
 X1_up = upsample(X1, 2);
 X1_up_length = length(X1_up);
 X1_up_magnitude = abs(X1_up);
-f_X1_up = (0: X1_up_length - 1) * ( (fs_1*6) /X1_up_length); % Vetor de frequências para X1_up
+f_X1_up = (0: X1_up_length - 1) * ( (fs_1*2) /X1_up_length); % Vetor de frequências para X1_up
 
-X2_down = decimate(X2, 6);
+X2_down = downsample(X2, 6);
 X2_down_length = length(X2_down);
 X2_down_magnitude = abs(X2_down);
-f_X2_down = (0: X2_down_length - 1) * ( (fs_2/2) /X2_down_length); % Vetor de frequências para X2_down
+f_X2_down = (0: X2_down_length - 1) * ( (fs_2/6) /X2_down_length); % Vetor de frequências para X2_down
+
+% APLICANDO A TRANSFORMADA INVERSA DE FOURIER PARA TER O SINAL NO DOMINIO DO TEMPO
+X1_t_up = ifft(X1_up);
+X1_t_up_length = length(X1_t_up);
+t_X1_up = (0: X1_t_up_length - 1) / (fs_1*2);
+
+X2_t_down = ifft(X2_down);
+X2_t_down_length = length(X2_t_down);
+t_X2_down = (0: X2_t_down_length - 1) / (fs_2/6);
 
 figure;
 subplot(3,2,1);
@@ -112,6 +121,20 @@ subplot(3,2,2);
 plot(f_X2_down, X2_down_magnitude);
 title('Espectro de Frequências do Sinal x2 Reamostrado');
 xlabel('Frequência (Hz)');
+ylabel('Magnitude');
+grid on;
+
+subplot(3,2,3);
+plot(t_X1_up, X1_t_up);
+title('Sinal X1 reamostrado no dominio do tempo');
+xlabel('Tempo (s)');
+ylabel('Magnitude');
+grid on;
+
+subplot(3,2,4);
+plot(t_X2_down, X2_t_down);
+title('Sinal X2 reamostrado no dominio do tempo');
+xlabel('Tempo (s)');
 ylabel('Magnitude');
 grid on;
 
