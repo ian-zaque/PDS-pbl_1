@@ -1,20 +1,17 @@
 % SUMÁRIO DAS VARIÁVEIS:
-% - saveVarsMat: VARIÁVEL TEMPORÁRIA PARA ARMAZENAR DADOS DO ARQUIVO .MAT
-% - x1, x2: SINAIS DE ENTRADA AMOSTRADOS EM DIFERENTES FREQUÊNCIAS (8000 HZ E 96000 HZ, RESPECTIVAMENTE)
-% - fs_1, fs_2: FREQUÊNCIAS DE AMOSTRAGEM DOS SINAIS x1 E x2
-% - ts_1, ts_2: PERÍODOS DE AMOSTRAGEM CORRESPONDENTES
-% - lp_filter_freq_1, lp_filter_freq_2: FREQUÊNCIAS DE CORTE DOS FILTROS PASSA-BAIXA
+% - x1, x2: SINAIS DE ENTRADA (AMOSTRADOS A 8 KHZ E 96 KHZ)
+% - fs_1, fs_2: FREQUÊNCIAS DE AMOSTRAGEM
+% - ts_1, ts_2: PERÍODOS DE AMOSTRAGEM
+% - x1_length, x2_length: NÚMERO DE AMOSTRAS
+% - t_x1, t_x2: VETORES DE TEMPO
+% - X1, X2: FFT DOS SINAIS ORIGINAIS
+% - f_x1, f_x2: EIXOS DE FREQUÊNCIA
 % - order_butter_filter: ORDEM DO FILTRO BUTTERWORTH
-% - x1_length, x2_length: NÚMERO DE AMOSTRAS NOS SINAIS x1 E x2
-% - t_x1, t_x2: VETORES DE TEMPO PARA OS SINAIS x1 E x2
-% - X1, X2: TRANSFORMADAS DE FOURIER DOS SINAIS x1 E x2
-% - X1_magnitude, X2_magnitude: MAGNITUDE DOS ESPECTROS DE FREQUÊNCIA DOS SINAIS
-% - f_x1, f_x2: VETORES DE FREQUÊNCIA ASSOCIADOS AOS ESPECTROS DE x1 E x2
-% - X1_up, X2_down: TRANSFORMADAS DE FOURIER DOS SINAIS REAMOSTRADOS
-% - X1_up_length, X2_down_length: NÚMERO DE AMOSTRAS NOS SINAIS REAMOSTRADOS
-% - X1_up_magnitude, X2_down_magnitude: MAGNITUDE DOS ESPECTROS DE FREQUÊNCIA DOS SINAIS REAMOSTRADOS
-% - f_X1_up, f_X2_down: VETORES DE FREQUÊNCIA ASSOCIADOS AOS ESPECTROS REAMOSTRADOS
-
+% - x1_up, x2_down: SINAIS REAMOSTRADOS (48 KHZ)
+% - X1_up, X2_down: FFT DOS SINAIS REAMOSTRADOS
+% - f_X1_up, f_X2_down: EIXOS DE FREQUÊNCIA DOS REAMOSTRADOS
+% - x_sum: SINAL RESULTANTE (SOMA DE x1_up E x2_down)
+% - X_sum, f_sum: FFT E EIXO DE FREQUÊNCIA DO SINAL SOMADO
 
 % Carregar o pacote de processamento de sinais
 pkg load signal;
@@ -53,12 +50,10 @@ t_x2 = (0: x2_length - 1) / fs_2; % Vetor de tempo para x2
 % Transformadas de Fourier para x1 e x2
 X1 = fft(x1); % Transformada rapida de fourier de x1
 X1 = fftshift(X1);  % Centralizando (deslocamento)
-X1_magnitude = abs(X1);
 f_x1 = linspace(-fs_1/2, fs_1/2, x1_length); % Vetor de frequências para x1
 
 X2 = fft(x2); % Transformada rapida de fourier de x2
 X2 = fftshift(X2);  % Centralizando (deslocamento)
-X2_magnitude = abs(X2);
 f_x2 = linspace(-fs_2/2, fs_2/2, x2_length); % Vetor de frequências para x2
 
 %Figura 1: Plot dos sinais originais no domínio do tempo
@@ -82,7 +77,7 @@ grid on;
 
 % Espectros de frequências do sinal original x1
 subplot(2,2,3);
-plot(f_x1, X1_magnitude);
+plot(f_x1, abs(X1));
 title('Espectro de Frequências do Sinal x1');
 xlabel('Frequência (Hz)');
 ylabel('Magnitude');
@@ -90,7 +85,7 @@ grid on;
 
 % Espectros de frequências do sinal original x2
 subplot(2,2,4);
-plot(f_x2, X2_magnitude);
+plot(f_x2, abs(X2));
 title('Espectro de Frequências do Sinal x2');
 xlabel('Frequência (Hz)');
 ylabel('Magnitude');
