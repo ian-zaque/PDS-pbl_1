@@ -25,6 +25,7 @@ file_path = fileparts(mfilename('fullpath'));
 audioDir = fullfile(file_path, 'audios');
 x1_filename = 'x1_resample_48k.wav';
 x2_filename = 'x2_resample_48k.wav';
+x_sum_filename = 'x_sum_48k.wav';
 
 % Carregando os sinais do arquivo sinais.mat
 saveVarsMat = load('sinais.mat');
@@ -64,7 +65,7 @@ f_x2 = linspace(-fs_2/2, fs_2/2, x2_length); % Vetor de frequências para x2
 figure;
 
 % Sinal x1 no domínio do tempo
-subplot(3,2,1);
+subplot(2,2,1);
 plot(t_x1, x1);
 title('Sinal x1 no Domínio do Tempo');
 xlabel('Tempo (s)');
@@ -72,7 +73,7 @@ ylabel('Amplitude');
 grid on;
 
 % Sinal x2 no domínio do tempo
-subplot(3,2,2);
+subplot(2,2,2);
 plot(t_x2, x2);
 title('Sinal x2 no Domínio do Tempo');
 xlabel('Tempo (s)');
@@ -80,7 +81,7 @@ ylabel('Amplitude');
 grid on;
 
 % Espectros de frequências do sinal original x1
-subplot(3,2,3);
+subplot(2,2,3);
 plot(f_x1, X1_magnitude);
 title('Espectro de Frequências do Sinal x1');
 xlabel('Frequência (Hz)');
@@ -88,13 +89,12 @@ ylabel('Magnitude');
 grid on;
 
 % Espectros de frequências do sinal original x2
-subplot(3,2,4);
+subplot(2,2,4);
 plot(f_x2, X2_magnitude);
 title('Espectro de Frequências do Sinal x2');
 xlabel('Frequência (Hz)');
 ylabel('Magnitude');
 grid on;
-
 
 % Reamostragem do espectro dos sinais X1 e X2
 % X1: de 8khz para 48khz (upsample)    | Aumentar 0s entre amostras em 6
@@ -126,7 +126,7 @@ f_X2_down = linspace(-fs_resample/2, fs_resample/2, X2_down_length);
 figure;
 
 % Sinal reamostrado x1 no domínio do tempo
-subplot(3,2,1);
+subplot(2,2,1);
 plot(t_x1_up, x1_up);
 title('Sinal x1_up no Domínio do Tempo');
 xlabel('Tempo (s)');
@@ -134,7 +134,7 @@ ylabel('Amplitude');
 grid on;
 
 % Sinal reamostrado x2 no domínio do tempo
-subplot(3,2,2);
+subplot(2,2,2);
 plot(t_x2_down, x2_down);
 title('Sinal x2_down no Domínio do Tempo');
 xlabel('Tempo (s)');
@@ -142,7 +142,7 @@ ylabel('Amplitude');
 grid on;
 
 % Espectros de frequências do sinal reamostrado x1
-subplot(3,2,3);
+subplot(2,2,3);
 plot(f_X1_up, abs(X1_up));
 title('Espectro de Frequências do Sinal x1');
 xlabel('Frequência (Hz)');
@@ -150,11 +150,38 @@ ylabel('Magnitude');
 grid on;
 
 % Espectros de frequências do sinal reamostrado x2
-subplot(3,2,4);
+subplot(2,2,4);
 plot(f_X2_down, abs(X2_down));
 title('Espectro de Frequências do Sinal x2');
 xlabel('Frequência (Hz)');
 ylabel('Magnitude');
+grid on;
+
+% Soma dos sinais no tempo
+x_sum = x1_up + x2_down; % Soma dos dois sinais reamostrados
+x_sum_length = length(x_sum);
+t_sum = (0:x_sum_length - 1) / fs_resample; % Vetor de tempo para o sinal resultante
+
+% Soma dos sinais na frequencia
+X_sum = fft(x_sum); % Transformada rapida de fourier de x1
+X_sum = fftshift(X_sum);  % Centralizando (deslocamento)
+X_sum_magnitude = abs(X_sum);
+f_sum = linspace(-fs_resample/2, fs_resample/2, x_sum_length); % Vetor de frequências para x1
+
+% 3a figura: Sinais somados
+figure;
+subplot(2,1,1);
+plot(t_sum, x_sum);
+title('Sinal Resultante (x1 + x2) no Domínio do Tempo');
+xlabel('Tempo (s)');
+ylabel('Amplitude');
+grid on;
+
+subplot(2,1,2);
+plot(f_sum, abs(X_sum));
+title('Sinal Resultante (x1 + x2) no Domínio da frequencia');
+xlabel('Frequencia (hz)');
+ylabel('Amplitude');
 grid on;
 
 if ~exist(audioDir, 'dir')
@@ -163,7 +190,9 @@ end
 
 output_filename_X1 = fullfile(audioDir, x1_filename);
 output_filename_X2 = fullfile(audioDir, x2_filename);
+output_filename_X_sum = fullfile(audioDir, x_sum_filename);
 
 audiowrite(output_filename_X1, x1_up, fs_resample);
 audiowrite(output_filename_X2, x2_down, fs_resample);
+audiowrite(output_filename_X_sum, x_sum, fs_resample);
 
